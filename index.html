@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Music Player</title>
+
+<style>
+body {
+    margin: 0;
+    background: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.player {
+    width: 360px;
+    background: #222;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.player img {
+    width: 200px;
+    border-radius: 10px;
+}
+
+h2 {
+    margin: 15px 0 5px;
+}
+
+audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.controls {
+    margin: 10px 0;
+}
+
+button {
+    background: #444;
+    border: none;
+    color: #fff;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+button:hover {
+    background: #666;
+}
+
+#progress {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.playlist {
+    text-align: left;
+    margin-top: 15px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.song-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+.song-item:hover {
+    background: #333;
+}
+
+.song-item.active {
+    background: #1db954;
+    color: black;
+}
+</style>
+
+</head>
+<body>
+
+<div class="player">
+    <img id="cover" src="images/song1.jpg" alt="cover">
+    <h2 id="title">Select a song</h2>
+
+    <input type="range" id="progress" value="0">
+
+    <div class="controls">
+        <button onclick="prevSong()">⏮</button>
+        <button onclick="playPause()">▶️</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+
+    <div class="playlist" id="playlist"></div>
+
+    <audio id="audio"></audio>
+</div>
+
+<script>
+const songs = [
+    {
+        title: "Mein Agar Kahoon",
+        file: "songs/Main Agar Kahoon_320(PagaiWorld.com).mp3",
+        cover: "mak.jpeg"
+    },
+    {
+        title: "Jashn-E-Bahaaraa",
+        file: "songs/Jashn-E-Bahaaraa_320(PagaiWorld.com).mp3",
+        cover: "jashn-e-bahaaraa.jpg"
+    },
+    {
+        title: "Pappu Cant Dance",
+        file: "songs/Pappu Cant Dance_320(PagaiWorld.com).mp3",
+        cover: "pappu-cant-dance.jpg"
+    }
+    // ➕ add more songs here
+];
+
+let current = 0;
+let isPlaying = false;
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const cover = document.getElementById("cover");
+const progress = document.getElementById("progress");
+const playlistEl = document.getElementById("playlist");
+
+// Render playlist
+songs.forEach((song, index) => {
+    const div = document.createElement("div");
+    div.classList.add("song-item");
+    div.innerText = song.title;
+    div.onclick = () => loadSong(index);
+    playlistEl.appendChild(div);
+});
+
+// Load song
+function loadSong(index) {
+    current = index;
+    audio.src = songs[index].file;
+    title.textContent = songs[index].title;
+    cover.src = songs[index].cover;
+
+    updateActive();
+    playSong();
+}
+
+function playSong() {
+    audio.play();
+    isPlaying = true;
+}
+
+function playPause() {
+    isPlaying ? audio.pause() : audio.play();
+    isPlaying = !isPlaying;
+}
+
+function nextSong() {
+    current = (current + 1) % songs.length;
+    loadSong(current);
+}
+
+function prevSong() {
+    current = (current - 1 + songs.length) % songs.length;
+    loadSong(current);
+}
+
+// Progress bar
+audio.addEventListener("timeupdate", () => {
+    progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+});
+
+progress.oninput = () => {
+    audio.currentTime = (progress.value / 100) * audio.duration;
+};
+
+audio.onended = nextSong;
+
+// Highlight active song
+function updateActive() {
+    document.querySelectorAll(".song-item").forEach((el, i) => {
+        el.classList.toggle("active", i === current);
+    });
+}
+</script>
+
+</body>
+</html>
